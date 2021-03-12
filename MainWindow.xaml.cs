@@ -127,6 +127,8 @@ namespace StoreProject
             Grid.SetRow(emptyCartButton, 0);
             Grid.SetColumn(emptyCartButton, 1);
 
+            emptyCartButton.Click += EmptyCartButton_Click;
+
             Button confirmPurchaseButton = CreateButton("Avsluta köp");
             cartGrid.Children.Add(confirmPurchaseButton);
             Grid.SetRow(confirmPurchaseButton, 0);
@@ -172,6 +174,12 @@ namespace StoreProject
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
             Grid.SetColumn(sumPurchaseLabel, 0);
+        }
+
+        private void EmptyCartButton_Click(object sender, RoutedEventArgs e)
+        {
+            Cart.Clear();
+            DrawCart();
         }
 
         private void ConfirmRebateCodeButton_Click(object sender, RoutedEventArgs e)
