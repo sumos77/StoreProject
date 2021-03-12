@@ -38,6 +38,8 @@ namespace StoreProject
         public static Rebate[] Rebates;
         public const string RebateFilePath = "Rebates.csv";
 
+        public const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
+
         public static Dictionary<Product, int> Cart = new Dictionary<Product, int>();
         //public const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
 
@@ -104,10 +106,6 @@ namespace StoreProject
             };
 
             mainStack.Children.Add(cartStack);
-            Cart.Add(Products[0], 100);
-            Cart.Add(Products[1], 100);
-            Cart.Add(Products[2], 100);
-
             DrawCart();
 
             Grid cartGrid = new Grid();
@@ -121,6 +119,8 @@ namespace StoreProject
             cartGrid.Children.Add(saveCartButton);
             Grid.SetRow(saveCartButton, 0);
             Grid.SetColumn(saveCartButton, 0);
+
+            saveCartButton.Click += SaveCartButton_Click;
 
             Button emptyCartButton = CreateButton("Töm kundvagnen");
             cartGrid.Children.Add(emptyCartButton);
@@ -174,6 +174,22 @@ namespace StoreProject
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
             Grid.SetColumn(sumPurchaseLabel, 0);
+        }
+
+        private void SaveCartButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> cartLines = new List<string>();
+            
+            foreach(KeyValuePair<Product, int> entry in Cart)
+            {
+                Product product = entry.Key;
+                int quantity = entry.Value;
+                string line = product.Name + "," + product.Description + "," + product.Price + "," + quantity.ToString();
+                cartLines.Add(line);
+            }
+
+            File.WriteAllLines(CartFilePath, cartLines);
+            MessageBox.Show("Varukorg har sparats!");
         }
 
         private void EmptyCartButton_Click(object sender, RoutedEventArgs e)
@@ -326,6 +342,26 @@ namespace StoreProject
         //    }
 
         //    return savedCart;
+        //}
+
+        //public static void SaveCart()
+        //{
+        //    // Create an empty list of text lines that we will fill with strings and then write to a textfile using `WriteAllLines`.
+        //    List<string> lines = new List<string>();
+        //    foreach (KeyValuePair<Product, int> pair in Cart)
+        //    {
+        //        Product p = pair.Key;
+        //        int amount = pair.Value;
+
+        //        // For each product, we only save the code and the amount.
+        //        // The other info (name, price, description) is already in "Products.csv" and we can look it up when we load the cart.
+        //        lines.Add(p.Code + "," + amount);
+        //    }
+        //    File.WriteAllLines(CartFilePath, lines);
+
+        //    Console.WriteLine("Din varukorg har sparats: ");
+        //    Console.WriteLine();
+        //    Console.WriteLine(CartToString());
         //}
 
         //Creates the panel and GUI for a product
