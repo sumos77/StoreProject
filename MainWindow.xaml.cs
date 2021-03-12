@@ -32,18 +32,16 @@ namespace StoreProject
 
     public partial class MainWindow : Window
     {
-        public static Product[] Products;
-        public const string ProductFilePath = "Products.csv";
-
-        public static Rebate[] Rebates;
-        public const string RebateFilePath = "Rebates.csv";
-
-        public const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
-
-        public static Dictionary<Product, int> Cart = new Dictionary<Product, int>();
-        //public const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
-
         //Instance variables to be reached and changed in all methods in this class
+        private Product[] Products;
+        private const string ProductFilePath = "Products.csv";
+
+        private Rebate[] Rebates;
+        private const string RebateFilePath = "Rebates.csv";
+
+        private Dictionary<Product, int> Cart = new Dictionary<Product, int>();
+        private const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
+
         private StackPanel cartStack;
         private StackPanel receiptProductPanel;
         private TextBox rebateCodeTextBox;
@@ -63,8 +61,7 @@ namespace StoreProject
             Products = LoadProducts();
             //Loads the rebates from the CSV-file
             Rebates = LoadRebates();
-            //Loads the cart at startup if it exists
-            
+            //Loads the cart from the CSV-file
             if (File.Exists(CartFilePath))
             {
                 Cart = LoadCart();
@@ -77,7 +74,6 @@ namespace StoreProject
             Title = "Butik";
             Width = 800;
             Height = 800;
-            //SizeToContent = SizeToContent.Height;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             // Scrolling
@@ -175,17 +171,12 @@ namespace StoreProject
             sumPurchaseGrid.ColumnDefinitions.Add(new ColumnDefinition());
             mainStack.Children.Add(sumPurchaseGrid);
 
-            //totalRebate = (100 - decimal.Parse(Rebates[4].Percent)) / 100;
-            //sumPurchase = sumPurchase * rebateMultiplier;
             sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(TotalSumWithRebate(), 2) + " kr");
             sumPurchaseLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
             Grid.SetColumn(sumPurchaseLabel, 0);
 
-            //#################################################
-            // KVITTO
-            // ################################################
             receiptProductPanel = new StackPanel
             {
                 Orientation = Orientation.Vertical
@@ -320,7 +311,7 @@ namespace StoreProject
             #endregion Receipt Sum
         }
 
-        public static Grid creatReceiptProductGrid(string productName, int quantity, int price)
+        private Grid creatReceiptProductGrid(string productName, int quantity, int price)
         {
             Grid receiptProductGrid = new Grid();
             receiptProductGrid.RowDefinitions.Add(new RowDefinition());
@@ -352,7 +343,7 @@ namespace StoreProject
 
             return receiptProductGrid;
         }
-        public static Label CreateBorderdLabel(string header)
+        private Label CreateBorderdLabel(string header)
         {
             Label label = new Label
             {
@@ -434,6 +425,7 @@ namespace StoreProject
             }   
         }
 
+        //Draws the sum at the end of the stack
         private void DrawSumLabel()
         {
             decimal sum = TotalSumWithRebate();
@@ -447,26 +439,22 @@ namespace StoreProject
             }
         }
 
-        public static Product[] LoadProducts()
+        private Product[] LoadProducts()
         {
-            // If the file doesn't exist, stop the program completely.
             if (!File.Exists(ProductFilePath))
             {
                 MessageBox.Show(ProductFilePath + " finns inte, eller har inte blivit satt till 'Copy Always'.");
                 Environment.Exit(1);
             }
 
-            // Create an empty list of products, then go through each line of the file to fill it.
+            //Splits the CSV-file into a list of the class Product
             List<Product> products = new List<Product>();
             string[] lines = File.ReadAllLines(ProductFilePath);
             foreach (string line in lines)
             {
                 try
                 {
-                    // First, split the line on commas (CSV means "comma-separated values").
                     string[] parts = line.Split(',');
-
-                    // Then create a product with its values set to the different parts of the line.
                     Product product = new Product
                     {
                         Name = parts[0],
@@ -482,30 +470,25 @@ namespace StoreProject
                 }
             }
 
-            // The method returns an array rather than a list (because the products are fixed after the program has started), so we need to convert it before returning.
             return products.ToArray();
         }
 
-        public static Rebate[] LoadRebates()
+        private Rebate[] LoadRebates()
         {
-            // If the file doesn't exist, stop the program completely.
             if (!File.Exists(RebateFilePath))
             {
                 MessageBox.Show(RebateFilePath + " finns inte, eller har inte blivit satt till 'Copy Always'.");
                 Environment.Exit(1);
             }
 
-            // Create an empty list of products, then go through each line of the file to fill it.
+            //Splits the CSV-file into a list of the class Product
             List<Rebate> rebates = new List<Rebate>();
             string[] lines = File.ReadAllLines(RebateFilePath);
             foreach (string line in lines)
             {
                 try
                 {
-                    // First, split the line on commas (CSV means "comma-separated values").
                     string[] parts = line.Split(',');
-
-                    // Then create a product with its values set to the different parts of the line.
                     Rebate rebate = new Rebate
                     {
                         //ToUpper to make the codes caseinsensitive
@@ -520,16 +503,14 @@ namespace StoreProject
                 }
             }
 
-            // The method returns an array rather than a list (because the products are fixed after the program has started), so we need to convert it before returning.
             return rebates.ToArray();
         }
 
-        public static Dictionary<Product, int> LoadCart()
+        private Dictionary<Product, int> LoadCart()
         {
-            // A cart is a dictionary (as described earlier), so create an empty one to fill as we read the CSV file.
             Dictionary<Product, int> savedCart = new Dictionary<Product, int>();
 
-            // Go through each line and split it on commas, as in `LoadProducts`.
+            //Splits the CSV-file into a array of strings
             string[] lines = File.ReadAllLines(CartFilePath);
             foreach (string line in lines)
             {
@@ -537,8 +518,6 @@ namespace StoreProject
                 string name = parts[0];
                 int amount = int.Parse(parts[3]);
 
-                // We only store the product's code in the CSV file, but we need to find the actual product object with that code.
-                // To do this, we access the static `products` variable and find the one with the matching code, then grab that product object.
                 Product current = null;
                 foreach (Product p in Products)
                 {
@@ -628,7 +607,7 @@ namespace StoreProject
         }
         
         //Creates the cart GUI and handles the button clicks
-        public Grid CreateCartGrid(Product product, int quantity)
+        private Grid CreateCartGrid(Product product, int quantity)
         {
             string plus = "+";
             string minus = "-";
@@ -749,7 +728,7 @@ namespace StoreProject
             DrawCart();
         }
 
-        public static Label CreateLabel(string header)
+        private Label CreateLabel(string header)
         {
             Label label = new Label
             {
@@ -762,7 +741,7 @@ namespace StoreProject
         }
 
         //Creates a button and gives it a tag
-        public static Button CreateButton(string header, Product tag=null)
+        private Button CreateButton(string header, Product tag=null)
         {
             Button button = new Button
             {
