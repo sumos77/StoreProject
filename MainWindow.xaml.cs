@@ -172,7 +172,7 @@ namespace StoreProject
 
             //totalRebate = (100 - decimal.Parse(Rebates[4].Percent)) / 100;
             //sumPurchase = sumPurchase * rebateMultiplier;
-            sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(TotalSum(), 2) + " kr");
+            sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(TotalSumWithRebate(), 2) + " kr");
             sumPurchaseLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
@@ -266,7 +266,7 @@ namespace StoreProject
             receiptSumGrid.Children.Add(rebateCodeLabel);
             Grid.SetRow(rebateCodeLabel, 2);
             Grid.SetColumn(rebateCodeLabel, 0);
-            Label receiptRebateSumLabel = CreateBorderdLabel("Summa efter rabat");
+            Label receiptRebateSumLabel = CreateBorderdLabel("Summa efter rabatt");
             receiptSumGrid.Children.Add(receiptRebateSumLabel);
             Grid.SetRow(receiptRebateSumLabel, 3);
             Grid.SetColumn(receiptRebateSumLabel, 0);
@@ -274,12 +274,17 @@ namespace StoreProject
 
             #region Receipt Colum 1
 
-            decimal sumTotalWithRebate = TotalSum();
+            decimal sumTotal = TotalSum();
+            decimal sumTotalWithRebate = TotalSumWithRebate();
+            decimal rebateAmount = sumTotal - sumTotalWithRebate;
+            string rebateCodePrecent = "0";
             //Label recepitRebateCodeLabel = CreateBorderdLabel(rebateCodeTextBox.Text);
             Label recepitRebateCode = new Label();
+            Label rebateCode = new Label();
             if (currentRebateCode != null)
             {
                 recepitRebateCode = CreateBorderdLabel(currentRebateCode.Code);
+                rebateCodePrecent = currentRebateCode.Percent;
             }
             else
             {
@@ -289,16 +294,16 @@ namespace StoreProject
             Grid.SetRow(recepitRebateCode, 0);
             Grid.SetColumn(recepitRebateCode, 1);
             //Vet inte hur jag skulle göra på denna så alla efter kommer att utgå från denna
-            Label receiptSum = CreateBorderdLabel("12233" + "Kr");
+            Label receiptSum = CreateBorderdLabel(Math.Round(sumTotal,2) + " kr");
             receiptSumGrid.Children.Add(receiptSum);
             Grid.SetRow(receiptSum, 1);
             Grid.SetColumn(receiptSum, 1);
             //Tog 20% som ett exempel
-            Label rebateCode = CreateBorderdLabel(((int.Parse("123") * 5) * 0.20).ToString() + "kr" + "(20%)");
+            rebateCode = CreateBorderdLabel(rebateAmount + " kr (" + rebateCodePrecent + " %)");
             receiptSumGrid.Children.Add(rebateCode);
             Grid.SetRow(rebateCode, 2);
             Grid.SetColumn(rebateCode, 1);
-            Label receiptRebateSum = CreateBorderdLabel(sumTotalWithRebate.ToString() + "kr");
+            Label receiptRebateSum = CreateBorderdLabel(Math.Round(sumTotalWithRebate,2) + " kr");
             receiptSumGrid.Children.Add(receiptRebateSum);
             Grid.SetRow(receiptRebateSum, 3);
             Grid.SetColumn(receiptRebateSum, 1);
@@ -398,7 +403,7 @@ namespace StoreProject
 
                 if (codeIsValid)
                 {
-                    sumAfterRebate = TotalSum();
+                    sumAfterRebate = TotalSumWithRebate();
                     DrawSumLabel();
                 }
                 else
@@ -418,7 +423,7 @@ namespace StoreProject
 
         private void DrawSumLabel()
         {
-            decimal sum = TotalSum();
+            decimal sum = TotalSumWithRebate();
             if (currentRebateCode != null)
             {
                 sumPurchaseLabel.Content = "Giltig rabattkod: " + currentRebateCode.Code + " Summa: " + Math.Round(sum, 2) + " kr";
