@@ -64,7 +64,12 @@ namespace StoreProject
             //Loads the rebates from the CSV-file
             Rebates = LoadRebates();
             //Loads the cart at startup if it exists
-            //Cart = LoadCart();
+            
+            if (File.Exists(CartFilePath))
+            {
+                Cart = LoadCart();
+            }
+
             rebateMultiplier = 1;
             currentRebateCode = null;
 
@@ -198,6 +203,10 @@ namespace StoreProject
             }
             DrawReceipt();
             Cart.Clear();
+            if (File.Exists(CartFilePath))
+            {
+                File.Delete(CartFilePath);
+            }
             DrawCart();
         }
 
@@ -379,6 +388,10 @@ namespace StoreProject
         {
             Cart.Clear();
             DrawCart();
+            if (File.Exists(CartFilePath))
+            {
+                File.Delete(CartFilePath);
+            }
         }
 
         private void ConfirmRebateCodeButton_Click(object sender, RoutedEventArgs e)
@@ -511,56 +524,37 @@ namespace StoreProject
             return rebates.ToArray();
         }
 
-        //public static Dictionary<Product, int> LoadCart()
-        //{
-        //    // A cart is a dictionary (as described earlier), so create an empty one to fill as we read the CSV file.
-        //    Dictionary<Product, int> savedCart = new Dictionary<Product, int>();
+        public static Dictionary<Product, int> LoadCart()
+        {
+            // A cart is a dictionary (as described earlier), so create an empty one to fill as we read the CSV file.
+            Dictionary<Product, int> savedCart = new Dictionary<Product, int>();
 
-        //    // Go through each line and split it on commas, as in `LoadProducts`.
-        //    string[] lines = File.ReadAllLines(CartFilePath);
-        //    foreach (string line in lines)
-        //    {
-        //        string[] parts = line.Split(',');
-        //        string name = parts[0];
-        //        int amount = int.Parse(parts[1]);
+            // Go through each line and split it on commas, as in `LoadProducts`.
+            string[] lines = File.ReadAllLines(CartFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                string name = parts[0];
+                int amount = int.Parse(parts[3]);
 
-        //        // We only store the product's code in the CSV file, but we need to find the actual product object with that code.
-        //        // To do this, we access the static `products` variable and find the one with the matching code, then grab that product object.
-        //        Product current = null;
-        //        foreach (Product p in Products)
-        //        {
-        //            if (p.Name == name)
-        //            {
-        //                current = p;
-        //            }
-        //        }
+                // We only store the product's code in the CSV file, but we need to find the actual product object with that code.
+                // To do this, we access the static `products` variable and find the one with the matching code, then grab that product object.
+                Product current = null;
+                foreach (Product p in Products)
+                {
+                    if (p.Name == name)
+                    {
+                        current = p;
+                    }
+                }
 
-        //        // Now that we have the product object (and not just the code), we can save it in the dictionary.
-        //        savedCart[current] = amount;
-        //    }
+                // Now that we have the product object (and not just the code), we can save it in the dictionary.
+                savedCart[current] = amount;
+            }
 
-        //    return savedCart;
-        //}
+            return savedCart;
+        }
 
-        //public static void SaveCart()
-        //{
-        //    // Create an empty list of text lines that we will fill with strings and then write to a textfile using `WriteAllLines`.
-        //    List<string> lines = new List<string>();
-        //    foreach (KeyValuePair<Product, int> pair in Cart)
-        //    {
-        //        Product p = pair.Key;
-        //        int amount = pair.Value;
-
-        //        // For each product, we only save the code and the amount.
-        //        // The other info (name, price, description) is already in "Products.csv" and we can look it up when we load the cart.
-        //        lines.Add(p.Code + "," + amount);
-        //    }
-        //    File.WriteAllLines(CartFilePath, lines);
-
-        //    Console.WriteLine("Din varukorg har sparats: ");
-        //    Console.WriteLine();
-        //    Console.WriteLine(CartToString());
-        //}
 
         //Creates the panel for a productobject
         private StackPanel CreateProductPanel(Product product)
