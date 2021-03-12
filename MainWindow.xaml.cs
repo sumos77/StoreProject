@@ -48,7 +48,7 @@ namespace StoreProject
         private TextBox rebateCodeTextBox;
         private Label sumPurchaseLabel;
         private decimal rebateMultiplier;
-        //private Rebate currentRebateCode = null;
+        private Rebate currentRebateCode = null;
         private decimal sumPurchase;
 
         public MainWindow()
@@ -92,11 +92,9 @@ namespace StoreProject
 
             mainStack.Children.Add(wrap);
 
-            foreach (Product p in Products)
+            foreach (Product product in Products)
             {
-                wrap.Children.Add(CreateProductPanel(p));
-                //mainStack.Children.Add(CreateCartGrid(p.Name + " " + p.Price + " kr ", int.Parse(p.Price)));
-                //sumPurchase += decimal.Parse(p.Price);
+                wrap.Children.Add(CreateProductPanel(product));
             }
 
             cartStack = new StackPanel
@@ -169,7 +167,7 @@ namespace StoreProject
 
             //totalRebate = (100 - decimal.Parse(Rebates[4].Percent)) / 100;
             //sumPurchase = sumPurchase * rebateMultiplier;
-            sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(sumPurchase, 2) + " kr");
+            sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(TotalSum(), 2) + " kr");
             sumPurchaseLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
@@ -214,20 +212,20 @@ namespace StoreProject
                     {
                         codeIsValid = true;
                         rebateMultiplier = (100 - decimal.Parse(r.Percent)) / 100;
-                        //currentRebateCode = r;
+                        currentRebateCode = r;
                     }
                 }
 
                 if (codeIsValid)
                 {
-                    sumAfterRebate = sumPurchase * rebateMultiplier;
-                    sumPurchaseLabel.Content = "Summa: " + sumAfterRebate + " kr";
+                    sumAfterRebate = TotalSum() * rebateMultiplier;
+                    sumPurchaseLabel.Content = "Giltig rabattkod: "+ currentRebateCode.Code + " Summa: " + Math.Round(sumAfterRebate, 2) + " kr";
                 }
                 else
                 {
                     MessageBox.Show("Fel kod!");
-                    sumPurchaseLabel.Content = "Summa: " + sumPurchase + " kr";
-                    //currentRebateCode = null;
+                    sumPurchaseLabel.Content = "Summa: " + Math.Round(TotalSum(), 2) + " kr";
+                    currentRebateCode = null;
                 }
             }
             else
@@ -415,9 +413,6 @@ namespace StoreProject
                 Cart.Add(addedProduct, 1);
             }
             DrawCart();
-
-            //cartStack.Children.Add(CreateLabel("Hello"));
-            //stack.Children.Add(CreateCartGrid(Products.Name[1] + " " + p.Price + " kr ", int.Parse(p.Price)));
         }
 
         private void DrawCart()
@@ -429,6 +424,11 @@ namespace StoreProject
             foreach (KeyValuePair<Product, int> entry in Cart)
             {
                 cartStack.Children.Add(CreateCartGrid(entry.Key, entry.Value));
+            }
+            
+            if (sumPurchaseLabel != null) 
+            { 
+                sumPurchaseLabel.Content = "Summa: " + Math.Round(TotalSum(), 2);
             }
         }
         public Grid CreateCartGrid(Product product, int quantity)
@@ -487,6 +487,25 @@ namespace StoreProject
             deleteButton.Click += DeleteButton_Click;
 
             return addProductGrid;
+        }
+
+        private decimal TotalSum()
+        {
+            decimal sum = 0;
+
+            foreach (KeyValuePair<Product, int> entry in Cart)
+            {
+                decimal productPrice = decimal.Parse(entry.Key.Price);
+                int quantity = entry.Value;
+                sum += productPrice * quantity;
+            }
+            if (currentRebateCode != null)
+            {
+                rebateMultiplier = (100 - decimal.Parse(currentRebateCode.Percent)) / 100;
+                sum = sum * rebateMultiplier;
+            }
+
+            return sum;
         }
 
         private void MinusButton_Click(object sender, RoutedEventArgs e)
