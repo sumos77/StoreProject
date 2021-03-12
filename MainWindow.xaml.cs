@@ -38,10 +38,11 @@ namespace StoreProject
         public static Rebate[] Rebates;
         public const string RebateFilePath = "Rebates.csv";
 
-        //public static Dictionary<Product, int> Cart;
+        public static Dictionary<Product, int> Cart = new Dictionary<Product, int>();
         //public const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
 
         //Instance variables to be reached and changed in all methods in this class
+        private StackPanel cartStack;
         private TextBox rebateCodeTextBox;
         private Label sumPurchaseLabel;
         private decimal rebateMultiplier;
@@ -65,8 +66,8 @@ namespace StoreProject
             // Window options
             Title = "Butik";
             Width = 800;
-            //Height = 800;
-            SizeToContent = SizeToContent.Height;
+            Height = 800;
+            //SizeToContent = SizeToContent.Height;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             // Scrolling
@@ -75,33 +76,46 @@ namespace StoreProject
             Content = root;
 
             // Main grid
-            StackPanel stack = new StackPanel
+            StackPanel mainStack = new StackPanel
             {
                 Orientation = Orientation.Vertical,
                 Margin = new Thickness(5)
             };
-            root.Content = stack;
+            root.Content = mainStack;
 
             WrapPanel wrap = new WrapPanel
             {
                 Orientation = Orientation.Horizontal
             };
 
-            stack.Children.Add(wrap);
+            mainStack.Children.Add(wrap);
 
             foreach (Product p in Products)
             {
                 wrap.Children.Add(CreateProductPanel(p));
-                stack.Children.Add(CreateCartGrid(p.Name + " " + p.Price + " kr ", int.Parse(p.Price)));
+                //mainStack.Children.Add(CreateCartGrid(p.Name + " " + p.Price + " kr ", int.Parse(p.Price)));
                 //sumPurchase += decimal.Parse(p.Price);
             }
+
+            cartStack = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Margin = new Thickness(5)
+            };
+
+            mainStack.Children.Add(cartStack);
+            Cart.Add(Products[0], 100);
+            Cart.Add(Products[1], 100);
+            Cart.Add(Products[2], 100);
+
+            DrawCart();
 
             Grid cartGrid = new Grid();
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            stack.Children.Add(cartGrid);
+            mainStack.Children.Add(cartGrid);
 
             Button saveCartButton = CreateButton("Spara kundvagnen");
             cartGrid.Children.Add(saveCartButton);
@@ -123,7 +137,7 @@ namespace StoreProject
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            stack.Children.Add(rebateCodeGrid);
+            mainStack.Children.Add(rebateCodeGrid);
 
             Label rebateCodeLabel = CreateLabel("Rabbatkod");
             rebateCodeLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
@@ -149,7 +163,7 @@ namespace StoreProject
             Grid sumPurchaseGrid = new Grid();
             sumPurchaseGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             sumPurchaseGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            stack.Children.Add(sumPurchaseGrid);
+            mainStack.Children.Add(sumPurchaseGrid);
 
             //totalRebate = (100 - decimal.Parse(Rebates[4].Percent)) / 100;
             //sumPurchase = sumPurchase * rebateMultiplier;
@@ -336,13 +350,44 @@ namespace StoreProject
             productStackPanel.Children.Add(productDescriptionLabel);
             Label productPriceLabel = CreateLabel(product.Price + " kr");
             productStackPanel.Children.Add(productPriceLabel);
-            Button button = CreateButton(addButton);
-            productStackPanel.Children.Add(button);
+            Button addProductButton = CreateButton(addButton, product);
+            productStackPanel.Children.Add(addProductButton);
+
+            addProductButton.Click += AddProductButton_Click;
 
             return productStackPanel;
         }
 
-        private Grid CreateCartGrid(string productName, int quantity)
+        private void AddProductButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button clickedButton = (Button)sender;
+            Product addedProduct = (Product)clickedButton.Tag;
+            if (Cart.ContainsKey(addedProduct))
+            { 
+                Cart[addedProduct]++; 
+            }
+            else
+            {
+                Cart.Add(addedProduct, 1);
+            }
+            DrawCart();
+
+            //cartStack.Children.Add(CreateLabel("Hello"));
+            //stack.Children.Add(CreateCartGrid(Products.Name[1] + " " + p.Price + " kr ", int.Parse(p.Price)));
+        }
+
+        private void DrawCart()
+        {
+            if (cartStack.Children.Count > 0)
+            {
+                cartStack.Children.Clear();
+            }
+            foreach (KeyValuePair<Product, int> entry in Cart)
+            {
+                cartStack.Children.Add(CreateCartGrid(entry.Key.Name + " " + entry.Key.Price + " kr ", entry.Value));
+            }
+        }
+        public Grid CreateCartGrid(string productName, int quantity)
         {
             string plus = "+";
             string minus = "-";
@@ -418,13 +463,14 @@ namespace StoreProject
             };
             return textBlock;
         }
-        public static Button CreateButton(string header)
+        public static Button CreateButton(string header, Product tag=null)
         {
             Button button = new Button
             {
                 Content = header,
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                Tag = tag
             };
             return button;
         }
