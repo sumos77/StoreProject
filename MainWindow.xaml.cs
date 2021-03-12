@@ -384,10 +384,10 @@ namespace StoreProject
             }
             foreach (KeyValuePair<Product, int> entry in Cart)
             {
-                cartStack.Children.Add(CreateCartGrid(entry.Key.Name + " " + entry.Key.Price + " kr ", entry.Value));
+                cartStack.Children.Add(CreateCartGrid(entry.Key, entry.Value));
             }
         }
-        public Grid CreateCartGrid(string productName, int quantity)
+        public Grid CreateCartGrid(Product product, int quantity)
         {
             string plus = "+";
             string minus = "-";
@@ -404,7 +404,7 @@ namespace StoreProject
             addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            Label productNameLabel = CreateLabel(productName);
+            Label productNameLabel = CreateLabel(product.Name + " " + product.Price + " kr ");
             addProductGrid.Children.Add(productNameLabel);
             Grid.SetRow(productNameLabel, 0);
             Grid.SetColumn(productNameLabel, 1);
@@ -431,12 +431,23 @@ namespace StoreProject
             Grid.SetRow(minusButton, 0);
             Grid.SetColumn(minusButton, 4);
 
-            Button deleteButton = CreateButton(delete);
+            Button deleteButton = CreateButton(delete, product);
             addProductGrid.Children.Add(deleteButton);
             Grid.SetRow(deleteButton, 0);
             Grid.SetColumn(deleteButton, 5);
 
+            deleteButton.Click += DeleteButton_Click;
+
             return addProductGrid;
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button clickedButton = (Button)sender;
+            Product addedProduct = (Product)clickedButton.Tag;
+
+            Cart.Remove(addedProduct);
+            DrawCart();
         }
 
         public static Label CreateLabel(string header)
