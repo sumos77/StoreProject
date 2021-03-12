@@ -49,7 +49,6 @@ namespace StoreProject
         private Label sumPurchaseLabel;
         private decimal rebateMultiplier;
         private Rebate currentRebateCode = null;
-        private decimal sumPurchase;
 
         public MainWindow()
         {
@@ -59,11 +58,13 @@ namespace StoreProject
 
         private void Start()
         {
+            //Loads the products from the CSV-file
             Products = LoadProducts();
+            //Loads the rebates from the CSV-file
             Rebates = LoadRebates();
+            //Loads the cart at startup if it exists
             //Cart = LoadCart();
             rebateMultiplier = 1;
-            sumPurchase = 0;
 
             // Window options
             Title = "Butik";
@@ -190,6 +191,7 @@ namespace StoreProject
             MessageBox.Show("Varukorg har sparats!");
         }
 
+        //Empties and clears the cart dictionary and the cart GUi
         private void EmptyCartButton_Click(object sender, RoutedEventArgs e)
         {
             Cart.Clear();
@@ -218,20 +220,35 @@ namespace StoreProject
 
                 if (codeIsValid)
                 {
-                    sumAfterRebate = TotalSum() * rebateMultiplier;
-                    sumPurchaseLabel.Content = "Giltig rabattkod: "+ currentRebateCode.Code + " Summa: " + Math.Round(sumAfterRebate, 2) + " kr";
+                    sumAfterRebate = TotalSum();
+                    DrawSumLabel();
                 }
                 else
                 {
                     MessageBox.Show("Fel kod!");
-                    sumPurchaseLabel.Content = "Summa: " + Math.Round(TotalSum(), 2) + " kr";
                     currentRebateCode = null;
+                    DrawSumLabel();
                 }
             }
             else
             {
                 MessageBox.Show("Fel antal tecken!");
+                currentRebateCode = null;
+                DrawSumLabel();
             }   
+        }
+
+        private void DrawSumLabel()
+        {
+            decimal sum = TotalSum();
+            if (currentRebateCode != null)
+            {
+                sumPurchaseLabel.Content = "Giltig rabattkod: " + currentRebateCode.Code + " Summa: " + Math.Round(sum, 2) + " kr";
+            }
+            else
+            {
+                sumPurchaseLabel.Content = "Summa: " + Math.Round(sum, 2) + " kr";
+            }
         }
 
         public static Product[] LoadProducts()
@@ -254,14 +271,14 @@ namespace StoreProject
                     string[] parts = line.Split(',');
 
                     // Then create a product with its values set to the different parts of the line.
-                    Product p = new Product
+                    Product product = new Product
                     {
                         Name = parts[0],
                         Description = parts[1],
                         Price = parts[2],
                         Path = parts[3]
                     };
-                    products.Add(p);
+                    products.Add(product);
                 }
                 catch
                 {
@@ -293,13 +310,13 @@ namespace StoreProject
                     string[] parts = line.Split(',');
 
                     // Then create a product with its values set to the different parts of the line.
-                    Rebate r = new Rebate
+                    Rebate rebate = new Rebate
                     {
                         //ToUpper to make the codes caseinsensitive
                         Code = parts[0].ToUpper(),
                         Percent = parts [1]
                     };
-                    rebates.Add(r);
+                    rebates.Add(rebate);
                 }
                 catch
                 {
@@ -362,7 +379,7 @@ namespace StoreProject
         //    Console.WriteLine(CartToString());
         //}
 
-        //Creates the panel and GUI for a product
+        //Creates the panel for a productobject
         private StackPanel CreateProductPanel(Product product)
         {
             string addButton = "Lägg till";
@@ -415,6 +432,7 @@ namespace StoreProject
             DrawCart();
         }
 
+        //Draws the cart and the sum
         private void DrawCart()
         {
             if (cartStack.Children.Count > 0)
@@ -427,10 +445,12 @@ namespace StoreProject
             }
             
             if (sumPurchaseLabel != null) 
-            { 
-                sumPurchaseLabel.Content = "Summa: " + Math.Round(TotalSum(), 2);
+            {
+                DrawSumLabel();
             }
         }
+        
+        //Creates the cart GUI and handles the button clicks
         public Grid CreateCartGrid(Product product, int quantity)
         {
             string plus = "+";
@@ -549,19 +569,8 @@ namespace StoreProject
             };
             return label;
         }
-        public static TextBlock CreateTextBlock(string header)
-        {
-            TextBlock textBlock = new TextBlock
-            {
-                Text = header,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(5),
-                FontFamily = new FontFamily("Constantia"),
-                FontSize = 16,
-                TextAlignment = TextAlignment.Center
-            };
-            return textBlock;
-        }
+
+        //Creates a button and gives it a tag
         public static Button CreateButton(string header, Product tag=null)
         {
             Button button = new Button
