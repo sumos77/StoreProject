@@ -429,10 +429,12 @@ namespace StoreProject
             Grid.SetRow(quantityTextBox, 0);
             Grid.SetColumn(quantityTextBox, 2);
 
-            Button plusButton = CreateButton(plus);
+            Button plusButton = CreateButton(plus, product);
             addProductGrid.Children.Add(plusButton);
             Grid.SetRow(plusButton, 0);
             Grid.SetColumn(plusButton, 3);
+
+            plusButton.Click += PlusButton_Click;
 
             Button minusButton = CreateButton(minus);
             addProductGrid.Children.Add(minusButton);
@@ -447,6 +449,15 @@ namespace StoreProject
             deleteButton.Click += DeleteButton_Click;
 
             return addProductGrid;
+        }
+
+        private void PlusButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button clickedButton = (Button)sender;
+            Product addedProduct = (Product)clickedButton.Tag;
+
+            Cart[addedProduct]++;
+            DrawCart();
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
