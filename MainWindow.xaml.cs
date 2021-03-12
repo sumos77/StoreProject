@@ -91,7 +91,7 @@ namespace StoreProject
 
             foreach (Product p in Products)
             {
-                wrap.Children.Add(CreateProductPanel(p.Name, p.Description, p.Price, p.Path));
+                wrap.Children.Add(CreateProductPanel(p));
                 stack.Children.Add(CreateCartGrid(p.Name + " " + p.Price + " kr ", int.Parse(p.Price)));
                 //sumPurchase += decimal.Parse(p.Price);
             }
@@ -307,7 +307,7 @@ namespace StoreProject
         //}
 
         //Creates the panel and GUI for a product
-        private StackPanel CreateProductPanel(string productName, string productDescription, string productPrice, string productImagePath)
+        private StackPanel CreateProductPanel(Product product)
         {
             string addButton = "Lägg till";
 
@@ -317,7 +317,7 @@ namespace StoreProject
                 Margin = new Thickness(5)
             };
 
-            ImageSource source = new BitmapImage(new Uri(productImagePath, UriKind.RelativeOrAbsolute));
+            ImageSource source = new BitmapImage(new Uri(product.Path, UriKind.RelativeOrAbsolute));
             Image image = new Image
             {
                 Source = source,
@@ -330,11 +330,11 @@ namespace StoreProject
             };
 
             productStackPanel.Children.Add(image);
-            Label productNameLabel = CreateLabel(productName);
+            Label productNameLabel = CreateLabel(product.Name);
             productStackPanel.Children.Add(productNameLabel);
-            Label productDescriptionLabel = CreateLabel(productDescription);
+            Label productDescriptionLabel = CreateLabel(product.Description);
             productStackPanel.Children.Add(productDescriptionLabel);
-            Label productPriceLabel = CreateLabel(productPrice + " kr");
+            Label productPriceLabel = CreateLabel(product.Price + " kr");
             productStackPanel.Children.Add(productPriceLabel);
             Button button = CreateButton(addButton);
             productStackPanel.Children.Add(button);
