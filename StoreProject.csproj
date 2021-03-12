@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+     <Content Include="Images\**">
+         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+     </Content>
+ </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Products.csv" />
+    <None Remove="Rebates.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Products.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Rebates.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
