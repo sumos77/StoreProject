@@ -39,7 +39,7 @@ namespace StoreProject
         private Rebate[] Rebates;
         private const string RebateFilePath = "Rebates.csv";
 
-        private Dictionary<Product, int> Cart = new Dictionary<Product, int>();
+        private Dictionary<Product, int> Cart;
         private const string CartFilePath = @"C:\Windows\Temp\Cart.csv";
 
         private StackPanel cartStack;
@@ -61,14 +61,17 @@ namespace StoreProject
             Products = LoadProducts();
             //Loads the rebates from the CSV-file
             Rebates = LoadRebates();
+
+            Cart = new Dictionary<Product, int>();
+
+            rebateMultiplier = 1;
+            currentRebateCode = null;
+
             //Loads the cart from the CSV-file
             if (File.Exists(CartFilePath))
             {
                 Cart = LoadCart();
             }
-
-            rebateMultiplier = 1;
-            currentRebateCode = null;
 
             // Window options
             Title = "Butik";
@@ -516,18 +519,19 @@ namespace StoreProject
             {
                 string[] parts = line.Split(',');
                 string name = parts[0];
+                string description = parts[1];
+                string price = parts[2];
                 int amount = int.Parse(parts[3]);
 
                 Product current = null;
-                foreach (Product p in Products)
+                foreach (Product product in Products)
                 {
-                    if (p.Name == name)
+                    //Since the file doesn't have any unique identifier, we check everything except the picture
+                    if (product.Name == name && product.Description == description && product.Price == price)
                     {
-                        current = p;
+                        current = product;
                     }
                 }
-
-                // Now that we have the product object (and not just the code), we can save it in the dictionary.
                 savedCart[current] = amount;
             }
 
@@ -734,7 +738,6 @@ namespace StoreProject
             {
                 Content = header,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
-                //Margin = new Thickness(5, 0, 0, 0),
                 Padding = new Thickness(5)
             };
             return label;
