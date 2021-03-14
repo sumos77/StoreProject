@@ -113,47 +113,60 @@ namespace StoreProject
             mainStack.Children.Add(cartStack);
             DrawCart();
 
+            #region cartGrid
             Grid cartGrid = new Grid();
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             mainStack.Children.Add(cartGrid);
+            #endregion cartGrid
 
+            #region saveCartButton
             Button saveCartButton = CreateButton("Spara kundvagnen");
             cartGrid.Children.Add(saveCartButton);
             Grid.SetRow(saveCartButton, 0);
             Grid.SetColumn(saveCartButton, 0);
 
             saveCartButton.Click += SaveCartButton_Click;
+            #endregion saveCartButton
 
+            #region emptyCartButton
             Button emptyCartButton = CreateButton("Töm kundvagnen");
             cartGrid.Children.Add(emptyCartButton);
             Grid.SetRow(emptyCartButton, 0);
             Grid.SetColumn(emptyCartButton, 1);
 
             emptyCartButton.Click += EmptyCartButton_Click;
+            #endregion emptyCartButton
 
+            #region confirmPurchaseButton
             Button confirmPurchaseButton = CreateButton("Avsluta köp");
             cartGrid.Children.Add(confirmPurchaseButton);
             Grid.SetRow(confirmPurchaseButton, 0);
             Grid.SetColumn(confirmPurchaseButton, 2);
 
             confirmPurchaseButton.Click += ConfirmPurchaseButton_Click;
+            #endregion confirmPurchaseButton
 
+            #region rebateCodeGrid
             Grid rebateCodeGrid = new Grid();
             rebateCodeGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rebateCodeGrid.ColumnDefinitions.Add(new ColumnDefinition());
             mainStack.Children.Add(rebateCodeGrid);
+            #endregion rebateCodeGrid
 
+            #region Rebatecode Label
             Label rebateCodeLabel = CreateLabel("Rabbatkod");
             rebateCodeLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
             rebateCodeGrid.Children.Add(rebateCodeLabel);
             Grid.SetRow(rebateCodeLabel, 0);
             Grid.SetColumn(rebateCodeLabel, 0);
+            #endregion Rebatecode Label
 
+            #region Rebatecode TextBox
             rebateCodeTextBox = new TextBox
             {
                 Margin = new Thickness(5),
@@ -161,24 +174,31 @@ namespace StoreProject
             rebateCodeGrid.Children.Add(rebateCodeTextBox);
             Grid.SetRow(rebateCodeTextBox, 0);
             Grid.SetColumn(rebateCodeTextBox, 1);
+            #endregion Rebatecode TextBox
 
+            #region confirmRebateCodeButton
             Button confirmRebateCodeButton = CreateButton("OK");
             confirmRebateCodeButton.IsDefault = true;
             rebateCodeGrid.Children.Add(confirmRebateCodeButton);
             Grid.SetRow(confirmRebateCodeButton, 0);
             Grid.SetColumn(confirmRebateCodeButton, 2);
             confirmRebateCodeButton.Click += ConfirmRebateCodeButton_Click;
+            #endregion confirmRebateCodeButton
 
+            #region sumPurchaseGrid
             Grid sumPurchaseGrid = new Grid();
             sumPurchaseGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             sumPurchaseGrid.ColumnDefinitions.Add(new ColumnDefinition());
             mainStack.Children.Add(sumPurchaseGrid);
+            #endregion sumPurchaseGrid
 
+            #region sumPurchaseLabel
             sumPurchaseLabel = CreateLabel("Summa: " + Math.Round(TotalSumWithRebate(), 2) + " kr");
             sumPurchaseLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
             sumPurchaseGrid.Children.Add(sumPurchaseLabel);
             Grid.SetRow(sumPurchaseLabel, 0);
             Grid.SetColumn(sumPurchaseLabel, 0);
+            #endregion sumPurchaseLabel
 
             receiptProductPanel = new StackPanel
             {
@@ -669,7 +689,7 @@ namespace StoreProject
             return addProductGrid;
         }
 
-        private decimal TotalSum()
+        public decimal TotalSum()
         {
             decimal sum = 0;
 
@@ -683,7 +703,8 @@ namespace StoreProject
             return sum;
         }
 
-        private decimal TotalSumWithRebate()
+        
+        public decimal TotalSumWithRebate()
         {
             decimal sum = 0;
 
